@@ -111,6 +111,10 @@ namespace EdwAssemblyLoader.Services
                         {
                             objs[i] = _configuration;
                         }
+                        else if (typeof(ILoggerFactory).IsAssignableFrom(parameters[i].ParameterType))
+                        {
+                            objs[i] = _serviceProvider.GetService(typeof(ILoggerFactory));
+                        }
                     }
                     instance = Activator.CreateInstance(type, objs);
                 }

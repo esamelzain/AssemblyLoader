@@ -17,7 +17,11 @@ namespace EdwAssemblyLoader
             IConfiguration _configuration = SetupConfiguration(args);
 
             var _serviceProvider = new ServiceCollection()
-                .AddLogging()
+                .AddLogging(b =>
+                {
+                    b.AddConsole();
+                    b.SetMinimumLevel(LogLevel.Information);
+                })
                 .AddSingleton(_configuration)
                 .AddSingleton<IAssemblyLoaderService, AssemblyLoaderService>()
                 .BuildServiceProvider();
