@@ -14,17 +14,17 @@ namespace EdwAssemblyLoader
         static void Main(string[] args)
         {
             //setup our DI
-            IConfiguration configuration = SetupConfiguration(args);
+            IConfiguration _configuration = SetupConfiguration(args);
 
-            var serviceProvider = new ServiceCollection()
+            var _serviceProvider = new ServiceCollection()
                 .AddLogging()
-                .AddSingleton(configuration)
+                .AddSingleton(_configuration)
                 .AddSingleton<IAssemblyLoaderService, AssemblyLoaderService>()
                 .BuildServiceProvider();
 
 
-            //creating helper instance
-            var _loader = serviceProvider.GetService<IAssemblyLoaderService>();
+            //creating service instance
+            var _loader = _serviceProvider.GetService<IAssemblyLoaderService>();
 
             //getting all directory's components (dlls)
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

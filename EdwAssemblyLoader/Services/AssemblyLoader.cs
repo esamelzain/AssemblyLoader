@@ -82,7 +82,7 @@ namespace EdwAssemblyLoader.Services
                         }
                         else if (typeof(IConfiguration).IsAssignableFrom(parameters[i].ParameterType))
                         {
-                            objs[i] = _serviceProvider.GetService<IConfiguration>();
+                            objs[i] = _configuration;
                         }
                     }
                     instance = Activator.CreateInstance(type, objs);
