@@ -11,22 +11,57 @@ using System.Threading.Tasks;
 
 namespace EdwAssemblyLoader.Services
 {
+    /// <summary>
+    /// Assembly Loader Interface
+    /// </summary>
     public interface IAssemblyLoaderService
     {
-        void CreateObjects(List<string> components, string execluded = "", string instances = "");
         List<string> GetAllComponents(string targetDirectory, string execluded = "");
+        void CreateObjects(List<string> components, string execluded = "", string instances = "");
     }
+    /// <summary>
+    /// Assembly Loader Class
+    /// </summary>
     internal class AssemblyLoaderService : IAssemblyLoaderService
     {
-        public readonly IServiceProvider _serviceProvider;
-        public readonly IConfiguration _configuration;
+        /// <summary>
+        /// private props
+        /// </summary>
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IConfiguration _configuration;
         private readonly IConfigurationSection _helper;
+        /// <summary>
+        /// constructor 
+        /// </summary>
+        /// <param name="serviceProvider">using to get ILogger // we can also pass Ilogger to the constructor directly</param>
+        /// <param name="configuration"></param>
         public AssemblyLoaderService(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
             _configuration = configuration;
             _helper = _configuration.GetSection("Helper");
         }
+       
+        /// <summary>
+        /// get allowed .dlls to load
+        /// </summary>
+        /// <param name="targetDirectory">location path for the .dlls</param>
+        /// <param name="execluded">execluded components will not be hit</param>
+        /// <returns></returns>
+        public List<string> GetAllComponents(string targetDirectory, string execluded = "")
+        {
+            execluded = execluded ?? "";
+            List<string> fileEntries = Directory.GetFiles(targetDirectory).ToList();
+            List<string> components = fileEntries.Where(file => file.Contains(".dll") && (execluded != "" ? !file.Contains(execluded) : true)).ToList();
+            return components;
+        }
+
+        /// <summary>
+        /// Creating instances from all required classes
+        /// </summary>
+        /// <param name="components">all allowed .dll components</param>
+        /// <param name="execluded">execluded classes will not be hit</param>
+        /// <param name="instances">number of instances for created objects</param>
         public void CreateObjects(List<string> components, string execluded = "", string instances = "")
         {
             execluded = execluded ?? "";
@@ -54,14 +89,6 @@ namespace EdwAssemblyLoader.Services
                     }
                 }
             }
-        }
-
-        public List<string> GetAllComponents(string targetDirectory, string execluded = "")
-        {
-            execluded = execluded ?? "";
-            List<string> fileEntries = Directory.GetFiles(targetDirectory).ToList();
-            List<string> components = fileEntries.Where(file => file.Contains(".dll") && (execluded != "" ? !file.Contains(execluded) : true)).ToList();
-            return components;
         }
 
         private void CreateInstance(Type type)
@@ -92,7 +119,12 @@ namespace EdwAssemblyLoader.Services
                     instance = Activator.CreateInstance(type);
                 }
             }
-            type.InvokeMember("Report", BindingFlags.InvokeMethod, null, instance, null);
+            //we can execute more than one method, just we have to add it into Methods list in appsettings.json
+            var methods = _helper.GetSection("Methods").GetChildren().ToList();
+            foreach (var method in methods)
+            {
+                type.InvokeMember(method.Value, BindingFlags.InvokeMethod, null, instance, null);
+            }
         }
 
         private Assembly AssemblyResolveCallback(object sender, ResolveEventArgs args) => Assembly.GetExecutingAssembly();
