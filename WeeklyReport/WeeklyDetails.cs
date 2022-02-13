@@ -30,6 +30,7 @@ namespace WeeklyReport
         public void Report()
         {
             Console.WriteLine("WeeklyDetails report called");
+            _loggerFactory.LogDebug("WeeklyDetails report called");
         }
     }
 }
