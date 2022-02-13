@@ -8,8 +8,8 @@ namespace DailyReport
     public class Daily : IEDWChallenge
     {
         public Guid SessionId { get; set; }
-        private readonly ILogger<Daily> _logger;
-        public Daily(ILogger<Daily> ilogger)
+        private readonly ILogger<dynamic> _logger;
+        public Daily(ILogger<dynamic> ilogger)
         {
             _logger = ilogger;
             SessionId = Guid.NewGuid();

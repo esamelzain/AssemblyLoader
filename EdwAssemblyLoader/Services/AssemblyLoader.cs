@@ -20,9 +20,12 @@ namespace EdwAssemblyLoader.Services
     {
         public readonly IServiceProvider _serviceProvider;
         public readonly IConfiguration _configuration;
-        public AssemblyLoaderService(IServiceProvider serviceProvider)
+        private readonly IConfigurationSection _helper;
+        public AssemblyLoaderService(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
+            _configuration = configuration;
+            _helper = _configuration.GetSection("Helper");
         }
         public void CreateObjects(List<string> components, string execluded = "", string instances = "")
         {
@@ -33,12 +36,12 @@ namespace EdwAssemblyLoader.Services
                 AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolveCallback;
                 var DLL = Assembly.LoadFrom(component);
                 var attribute = DLL.CustomAttributes;
-                var qualified = attribute.Any(attr => attr.AttributeType.Name == "EDW_Challenge");
+                var qualified = attribute.Any(attr => attr.AttributeType.Name == _helper.GetSection("Attribute").Value);
                 if (qualified)
                 {
                     foreach (Type type in DLL.GetExportedTypes())
                     {
-                        if (type.Name != execluded && type.GetInterfaces().Any(inte => inte.Name == "IEDWChallenge"))
+                        if (type.Name != execluded && type.GetInterfaces().Any(inte => inte.Name == _helper.GetSection("Interface").Value))
                         {
                             int loop = 1;
                             if (instances != "")

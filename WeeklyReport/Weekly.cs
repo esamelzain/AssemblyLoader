@@ -9,12 +9,11 @@ namespace WeeklyReport
     public class Weekly : IEDWChallenge
     {
         public Guid SessionId { get; set; }
-        private readonly ILogger<Weekly> _logger;
-        private readonly IConfiguration _configuration;
-        public Weekly(ILogger<Weekly> ilogger, IConfiguration configuration)
+        private readonly ILogger<dynamic> _logger;
+        public Weekly(ILogger<dynamic> ilogger)
         {
             _logger = ilogger;
-            _configuration = configuration;
+            //_configuration = configuration;
             SessionId = Guid.NewGuid();
             Console.WriteLine("Weekly inestance created with id: " + SessionId.ToString());
             _logger.LogInformation("Weekly inestance created with id: " + SessionId.ToString());
